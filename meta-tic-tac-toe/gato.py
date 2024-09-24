@@ -22,7 +22,7 @@ def human_move(meta_board):
             print(f"valor de posicion invalida '{board_key}'. Tiene que ser una letra entre a, i.")
             continue
 
-        # Checa si ek movimineto que hiciste se puede hacer
+        # Checa si el movimineto que hiciste se puede hacer
         if meta_board.current_board is not None and meta_board.current_board != meta_key:
             print(f"Tienes que jugar en el tablero: {meta_board.current_board}. Movimiento en el tablero {meta_key} no se puede.")
             continue
@@ -170,6 +170,15 @@ class Board(dict):
             self.count += 1
             return True
         return False  # Posicion ya ocupada
+    def __str__(self):
+        """Return a string representation of the board."""
+        return (
+            f"{self['a']} | {self['b']} | {self['c']}\n"
+            f"---------\n"
+            f"{self['d']} | {self['e']} | {self['f']}\n"
+            f"---------\n"
+            f"{self['g']} | {self['h']} | {self['i']}"
+        ).replace('None', ' ')
 
 
 class MetaBoard(dict):
@@ -197,7 +206,7 @@ def play_game(meta_board):
 
     while not meta_board.checkMetaState():
         print(f"turno del jugador {current_player} ")
-        print_meta_board(meta_board)
+        print(print_meta_board(meta_board))
 
         if current_player == 'X':
             # Turno de la IA
@@ -217,18 +226,23 @@ def play_game(meta_board):
 
 
 def print_meta_board(meta_board):
-    """Imprimir el estado del tablero"""
-    for i, board_key in enumerate('ABCDEFGHI'):
-        board = meta_board[board_key]
-        print(f"Board {board_key}:")
-        print(f"{board['a'] or ' '} | {board['b'] or ' '} | {board['c'] or ' '}")
-        print("---------")
-        print(f"{board['d'] or ' '} | {board['e'] or ' '} | {board['f'] or ' '}")
-        print("---------")
-        print(f"{board['g'] or ' '} | {board['h'] or ' '} | {board['i'] or ' '}")
-        print()
-        if (i + 1) % 3 == 0:
-            print("----------------------------")
+    """Devuelve una representación en cadena del Meta_Board."""
+    meta_rows = ['ABC', 'DEF', 'GHI']
+    rows = ['abc', 'def', 'ghi']
+    meta_str = ""
+        
+    for meta_row in meta_rows:
+        # Dividir cada tablero en sus tres filas
+        board_rows = [str(meta_board[key]).split('\n') for key in meta_row]
+        
+        # Combinar las filas de los tres tableros en cada fila del meta-tablero
+        for i in range(5):
+            meta_str += " | ".join(board_rows[j][i] for j in range(3)) + "\n"
+            
+        if meta_row != meta_rows[-1]:
+            meta_str += "-" * 34 + "\n"
+    
+    return meta_str
 
 # Crear el metatablero y empezar el juego
 meta_board = MetaBoard()
