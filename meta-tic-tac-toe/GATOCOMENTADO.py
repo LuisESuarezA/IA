@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct  2 20:32:54 2024
-
-@author: ivanv
-"""
-
-"""
 Manual de Usuario
 
 Descripción General
