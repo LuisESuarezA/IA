@@ -213,7 +213,14 @@ def minimax(meta_board, depth, is_maximizing, player, alpha, beta):
         return best_score
     
 # Función que determina el movimiento óptimo para la IA
-def ai_move(meta_board):
+def ai_move(meta_board, is_first_move=False):  # Se añade el parámetro is_first_move con valor predeterminado False
+    # Si es el primer movimiento de la IA, hacer un movimiento predefinido
+    if is_first_move:
+        # Elegimos el centro del tablero central (Ee) como primer movimiento
+        # Esta elección es estratégica y evita el cálculo intensivo del primer movimiento
+        return ('A', 'e')
+    
+    # Si no es el primer movimiento, continuar con la lógica existente
     best_score = float('-inf')
     best_move = None
     
@@ -257,10 +264,10 @@ def ai_move(meta_board):
     
     return best_move
 
-
 # Función principal que controla el flujo del juego
 def play_game():
     meta_board = MetaBoard()
+    is_first_move = True  # Variable para rastrear si es el primer movimiento del juego
     
     print("Welcome to Ultimate Tic-Tac-Toe!")
     print("You are 'O', and the AI is 'X'.")
@@ -285,9 +292,11 @@ def play_game():
         
         if current_player == 'O':  # Turno del humano
             meta_key, board_key = human_move(meta_board)
+            is_first_move = False  # Ya no es el primer movimiento después de que el humano juega
         else:  # Turno de la IA
             print("AI is thinking...")
-            meta_key, board_key = ai_move(meta_board)
+            meta_key, board_key = ai_move(meta_board, is_first_move)  # Se pasa is_first_move a la función ai_move
+            is_first_move = False  # Ya no es el primer movimiento después de que la IA juega
             print(f"AI played: {meta_key}{board_key}")
         
         meta_board[meta_key].set_value(board_key, current_player)
