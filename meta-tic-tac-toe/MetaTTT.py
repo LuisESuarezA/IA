@@ -165,7 +165,8 @@ def evaluate_board(meta_board, player):
 
 
 # Algoritmo Minimax optimizado con ordenación y poda
-def minimax(meta_board, depth, is_maximizing, player, alpha, beta):
+# Algoritmo Minimax optimizado con profundidad adaptativa y agresividad mejorada
+def minimax(meta_board, depth, is_maximizing, player, alpha, beta, critical_move=False):
     state = meta_board.checkMetaState()
     opponent = 'O' if player == 'X' else 'X'
     
@@ -178,6 +179,9 @@ def minimax(meta_board, depth, is_maximizing, player, alpha, beta):
     elif depth == 0:  # Si se ha alcanzado la profundidad máxima de búsqueda
         return evaluate_board(meta_board, player)
 
+    # Aumenta la profundidad en caso de jugada crítica
+    next_depth = depth + 1 if critical_move else depth
+
     if is_maximizing:  # Si es el turno de maximizar (IA)
         best_score = float('-inf')
         for meta_key in 'ABCDEFGHI':
@@ -186,8 +190,11 @@ def minimax(meta_board, depth, is_maximizing, player, alpha, beta):
                     if meta_board[meta_key][board_key] is None:  # Evalúa solo posiciones vacías
                         meta_board[meta_key][board_key] = player
                         
+                        # Evalúa si la IA está a un paso de ganar o perder el tablero
+                        critical_move = meta_board[meta_key].checkState() == player
+                        
                         # Realiza minimax con poda alpha-beta
-                        score = minimax(meta_board, depth - 1, False, player, alpha, beta)
+                        score = minimax(meta_board, next_depth - 1, False, player, alpha, beta, critical_move)
                         
                         meta_board[meta_key][board_key] = None
                         best_score = max(score, best_score)
@@ -203,7 +210,9 @@ def minimax(meta_board, depth, is_maximizing, player, alpha, beta):
                     if meta_board[meta_key][board_key] is None:
                         meta_board[meta_key][board_key] = opponent
                         
-                        score = minimax(meta_board, depth - 1, True, player, alpha, beta)
+                        critical_move = meta_board[meta_key].checkState() == opponent
+                        
+                        score = minimax(meta_board, next_depth - 1, True, player, alpha, beta, critical_move)
                         
                         meta_board[meta_key][board_key] = None
                         best_score = min(score, best_score)
