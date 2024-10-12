@@ -26,7 +26,21 @@ Objetivo del Juego:
 
 # Clase que representa un tablero individual de Tic-Tac-Toe
 class Board(dict):
+    """
+    Representa un tablero individual de Tic-Tac-Toe.
+
+    Atributos:
+        count (int): Contador de jugadas realizadas en el tablero.
+        winning_combinations (list): Combinaciones ganadoras posibles en un tablero de Tic-Tac-Toe.
+
+    Métodos:
+        __init__(): Inicializa el tablero con posiciones vacías.
+        __str__(): Retorna una representación en cadena del tablero actual.
+        set_value(key, value): Asigna un valor a una posición del tablero.
+        checkState(): Verifica el estado del tablero (ganador, empate o en progreso).
+    """
     def __init__(self):
+        """Inicializa el tablero con posiciones vacías y establece el contador en 0."""
         super().__init__()
         for key in 'abcdefghi':  # Inicializa cada posición del tablero como None
             self[key] = None
@@ -40,6 +54,7 @@ class Board(dict):
 
     # Método que devuelve el estado del tablero en formato string
     def __str__(self):
+        """Retorna una representación en cadena del tablero actual."""
         return (
             f"{self['a'] or ' '} | {self['b'] or ' '} | {self['c'] or ' '}\n"
             f"---------\n"
@@ -50,6 +65,16 @@ class Board(dict):
 
     # Método que asigna un valor (X o O) a una posición si está disponible
     def set_value(self, key, value):
+        """
+        Asigna un valor a una posición del tablero.
+
+        Parámetros:
+            key (str): Posición en el tablero (una de 'a' a 'i').
+            value (str): Valor a asignar ('X' o 'O').
+
+        Retorno:
+            bool: True si se asignó el valor, False si la posición ya estaba ocupada.
+        """
         if self[key] is None:
             self[key] = value
             self.count += 1
@@ -58,6 +83,12 @@ class Board(dict):
 
     # Método para verificar si alguien ganó o si el tablero terminó en empate
     def checkState(self):
+        """
+        Verifica el estado del tablero.
+
+        Retorno:
+            str: 'X' si ganó X, 'O' si ganó O, 'Tie' si hay un empate, None si el juego continúa.
+        """
         for combo in self.winning_combinations:  # Revisa todas las combinaciones ganadoras
             if self[combo[0]] == self[combo[1]] == self[combo[2]] and self[combo[0]] is not None:
                 return self[combo[0]]  # Devuelve el ganador (X u O)
@@ -67,7 +98,20 @@ class Board(dict):
 
 # Clase que representa el tablero meta (tablero de tableros)
 class MetaBoard(dict):
+    """
+    Representa el tablero meta que contiene 9 tableros individuales.
+
+    Atributos:
+        current_board (str): Tablero actual donde debe jugarse el siguiente movimiento.
+        winning_combinations (list): Combinaciones ganadoras posibles en el tablero meta.
+
+    Métodos:
+        __init__(): Inicializa 9 tableros individuales.
+        __str__(): Retorna una representación en cadena del estado actual del tablero meta.
+        checkMetaState(): Verifica el estado del tablero meta (ganador o empate).
+    """
     def __init__(self):
+        """Inicializa 9 tableros individuales."""
         super().__init__()
         for key in 'ABCDEFGHI':  # Inicializa 9 tableros individuales
             self[key] = Board()
@@ -81,6 +125,12 @@ class MetaBoard(dict):
 
     # Verifica el estado del tablero meta (si hay un ganador o empate)
     def checkMetaState(self):
+        """
+        Verifica el estado del tablero meta.
+
+        Retorno:
+            str: 'X' si ganó X, 'O' si ganó O, 'Tie' si hay un empate, None si el juego continúa.
+        """
         for combo in self.winning_combinations:  # Revisa todas las combinaciones ganadoras en el tablero meta
             states = [self[key].checkState() for key in combo]
             if states[0] in ['X', 'O'] and all(state == states[0] for state in states):
@@ -91,6 +141,7 @@ class MetaBoard(dict):
 
     # Método para imprimir el estado actual del tablero meta
     def __str__(self):
+        """Retorna una representación en cadena del estado actual del tablero meta."""
         meta_rows = ['ABC', 'DEF', 'GHI']
         meta_str = ""
         for meta_row in meta_rows:
@@ -103,6 +154,15 @@ class MetaBoard(dict):
 
 # Función que permite al jugador humano realizar su movimiento
 def human_move(meta_board):
+    """
+    Permite al jugador humano realizar su movimiento en el juego.
+
+    Parámetros:
+        meta_board (MetaBoard): Instancia del tablero meta donde se realizará la jugada.
+
+    Retorno:
+        tuple: (meta_key, board_key) que representa el tablero y la posición seleccionada.
+    """
     while True:
         move = input("Enter your move (board A-I and position a-i, e.g., Ab): ").strip()
         if len(move) != 2:
@@ -133,6 +193,16 @@ def human_move(meta_board):
 
 # Evalúa el tablero desde la perspectiva de un jugador
 def evaluate_board(meta_board, player):
+    """
+    Evalúa el estado de los tableros desde la perspectiva de un jugador específico.
+
+    Parámetros:
+        meta_board (MetaBoard): Instancia del tablero meta que se evaluará.
+        player (str): El jugador que se está evaluando ('X' o 'O').
+
+    Retorno:
+        int: Valor numérico que representa la puntuación del tablero.
+    """
     opponent = 'O' if player == 'X' else 'X'
     score = 0
     for board_key in 'ABCDEFGHI':
@@ -165,8 +235,23 @@ def evaluate_board(meta_board, player):
 
 
 # Algoritmo Minimax optimizado con ordenación y poda
-# Algoritmo Minimax optimizado con profundidad adaptativa y agresividad mejorada
+# Algoritmo Minimax optimizado con profundidad adaptativa y "agresividad" mejorada
 def minimax(meta_board, depth, is_maximizing, player, alpha, beta, critical_move=False):
+    """
+    Implementa el algoritmo Minimax con poda alpha-beta para determinar el movimiento óptimo.
+
+    Parámetros:
+        meta_board (MetaBoard): El tablero meta actual.
+        depth (int): Profundidad actual de la búsqueda.
+        is_maximizing (bool): Indica si es el turno del jugador maximizador (IA).
+        player (str): El jugador actual ('X' o 'O').
+        alpha (float): Mejor puntuación que el jugador maximizador puede garantizar.
+        beta (float): Mejor puntuación que el jugador minimizador puede garantizar.
+        critical_move (bool): Indica si la jugada actual es crítica.
+
+    Retorno:
+        int: Puntuación óptima calculada.
+    """
     state = meta_board.checkMetaState()
     opponent = 'O' if player == 'X' else 'X'
     
@@ -223,6 +308,16 @@ def minimax(meta_board, depth, is_maximizing, player, alpha, beta, critical_move
     
 # Función que determina el movimiento óptimo para la IA
 def ai_move(meta_board, is_first_move=False):  # Se añade el parámetro is_first_move con valor predeterminado False
+    """
+    Determina el movimiento óptimo para la IA.
+
+    Parámetros:
+        meta_board (MetaBoard): El tablero meta actual.
+        is_first_move (bool): Indica si es el primer movimiento de la IA.
+
+    Retorno:
+        tuple: (meta_key, board_key) que representa el movimiento seleccionado.
+    """
     # Si es el primer movimiento de la IA, hacer un movimiento predefinido
     if is_first_move:
         # Elegimos el centro del tablero central (Ee) como primer movimiento
@@ -275,6 +370,12 @@ def ai_move(meta_board, is_first_move=False):  # Se añade el parámetro is_firs
 
 # Función principal que controla el flujo del juego
 def play_game():
+    """
+    Controla el flujo general del juego.
+
+    Inicializa el juego, configura el tablero meta y alterna entre el movimiento del jugador humano y la IA.
+    Verifica el estado del juego tras cada movimiento y finaliza si hay un ganador o empate.
+    """
     meta_board = MetaBoard()
     is_first_move = True  # Variable para rastrear si es el primer movimiento del juego
     
