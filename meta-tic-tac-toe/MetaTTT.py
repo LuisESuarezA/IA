@@ -234,7 +234,6 @@ def evaluate_board(meta_board, player):
     return score
 
 
-# Algoritmo Minimax optimizado con ordenación y poda
 # Algoritmo Minimax optimizado con profundidad adaptativa y "agresividad" mejorada
 def minimax(meta_board, depth, is_maximizing, player, alpha, beta, critical_move=False):
     """
